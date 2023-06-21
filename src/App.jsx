@@ -1,37 +1,15 @@
-import { useEffect, useState } from 'react'
 import './App.css'
-import { getRamdonFact } from './services/facts'
+import useCatImage from './hooks/useCatImage'
+import { useCatFact } from './hooks/useCatFact'
 
 // const CAT_ENDPOINT_IMAGE_URL = `https://cataas.com/cat/says/hello?size=50&color=red&json=true`
-const CAT_PREFIX_IMAGE_URL = 'https://cataas.com'
 
 export function App () {
-  const [fact, setFact] = useState()
-  const [imageUrl, setImageUrl] = useState()
-
-  // useEffect (() => {}, []) forma de crear
-  // recuperar la cita
-  useEffect(() => {
-    getRamdonFact().then(setFact)
-  }, [])
-
+  const { fact, refreshFact } = useCatFact()
+  const { imageUrl } = useCatImage({ fact })
   // recuperar la imagen
-  useEffect(() => {
-    if (!fact) return
-    // const firtWord = fact.split(' ').slice(0, 3).join(' ') => otra forma de hacerlo
-    const firtWord = fact.split(' ', 3).join(' ')
-    console.log(firtWord)
-    fetch(`https://cataas.com/cat/says/${firtWord}?size=50&color=red&json=true`)
-      .then(res => res.json())
-      .then(response => {
-        const { url } = response
-        // setImageUrl(`https://cataas.com${url}`)
-        setImageUrl(url)
-      })
-  }, [fact])
-
-  const handleClick = () => {
-    getRamdonFact(setFact).then(newFact => setFact(newFact)) // forma correcta === a getRamdonFact().then(setFact) = line 15
+  const handleClick = async () => {
+    refreshFact()
   }
 
   return (
@@ -40,8 +18,9 @@ export function App () {
       <button onClick={handleClick}>Obtener New Render</button>
       <section>
         {fact && <p>{fact}</p>}
-        {imageUrl && <img src={`${CAT_PREFIX_IMAGE_URL}${imageUrl}`} alt={`Imagen sacada de las 3 primeras palabras ${fact}`} />}
+        {imageUrl && <img src={imageUrl} alt={`Imagen sacada de las 3 primeras palabras ${fact}`} />}
       </section>
+      {/* <Otro /> */}
     </main>
   )
 }
